@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>飞书审批卡片改版 PRD</title>
+  <style>
+    :root {
+      --ink: #202722;
+      --muted: #6e756f;
+      --line: #d8d8d0;
+      --paper: #fbfaf6;
+      --canvas: #f2f1eb;
+      --accent: #2b6750;
+      --accent-soft: #e4efe8;
+      --blue: #2866c7;
+      --red: #b34b40;
+      --red-soft: #f7e9e6;
+      --amber-soft: #f7efdf;
+      --shadow: 0 8px 28px rgba(31, 39, 34, .08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: Inter, "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    a { color: var(--accent); }
+    code, pre { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    code { padding: 2px 5px; background: #ecece5; border-radius: 4px; font-size: .9em; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 230px minmax(0, 1fr);
+      gap: 28px;
+      width: min(1220px, calc(100% - 40px));
+      margin: 24px auto 64px;
+    }
+
+    .toc {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 18px;
+      background: #1d2a22;
+      color: #dce6df;
+      border-radius: 7px;
+    }
+
+    .toc strong {
+      display: block;
+      margin-bottom: 12px;
+      color: white;
+      font-size: 13px;
+    }
+
+    .toc a {
+      display: block;
+      padding: 5px 0;
+      color: #aebdb3;
+      font-size: 12px;
+      text-decoration: none;
+    }
+
+    .toc a:hover { color: white; }
+
+    main {
+      overflow: hidden;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      box-shadow: var(--shadow);
+    }
+
+    header {
+      padding: 42px 48px 34px;
+      border-bottom: 1px solid var(--line);
+      background: #f7f6f0;
+    }
+
+    header h1 {
+      margin: 7px 0 10px;
+      font-size: 32px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    header p {
+      max-width: 720px;
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .eyebrow {
+      color: #7b827d;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .doc-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 25px;
+      padding: 2px 9px;
+      border: 1px solid #d5d6ce;
+      border-radius: 999px;
+      background: white;
+      color: #58605b;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .tag.pending { color: #8a6220; background: var(--amber-soft); border-color: #e2cfaa; }
+
+    section {
+      padding: 34px 48px;
+      border-bottom: 1px solid #e7e6df;
+    }
+
+    section:last-child { border-bottom: 0; }
+    section h2 { margin: 0 0 18px; font-size: 22px; line-height: 1.3; }
+    section h3 { margin: 26px 0 10px; font-size: 16px; }
+    section h4 { margin: 20px 0 8px; font-size: 14px; }
+    section p { margin: 9px 0; }
+
+    ul, ol { margin: 10px 0 14px; padding-left: 22px; }
+    li { margin: 5px 0; }
+
+    table {
+      width: 100%;
+      margin: 12px 0 18px;
+      border-collapse: collapse;
+      background: white;
+      font-size: 12px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+      border: 1px solid var(--line);
+    }
+
+    th { background: #f0efe9; font-size: 10px; text-transform: uppercase; }
+    pre {
+      overflow: auto;
+      margin: 12px 0 18px;
+      padding: 16px;
+      color: #e8efe9;
+      background: #202923;
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .notice {
+      margin: 16px 0;
+      padding: 13px 15px;
+      border: 1px solid #dac79f;
+      border-left: 4px solid #a87827;
+      border-radius: 5px;
+      background: #faf4e8;
+      color: #675738;
+      font-size: 12px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .problem {
+      padding: 14px;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    .problem strong { display: block; margin-bottom: 5px; }
+    .problem p { margin: 0; color: var(--muted); font-size: 12px; }
+
+    .preview-area {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(320px, 1fr));
+      gap: 18px;
+      align-items: start;
+      margin-top: 16px;
+    }
+
+    .feishu-card {
+      overflow: hidden;
+      color: #202722;
+      background: #fff;
+      border: 1px solid #d9d9d2;
+      border-radius: 8px;
+      box-shadow: 0 4px 18px rgba(24, 32, 27, .08);
+    }
+
+    .feishu-card.dark {
+      color: #f0f3f1;
+      background: #252525;
+      border-color: #3b3b3b;
+    }
+
+    .card-head {
+      padding: 16px 18px 14px;
+      background: #f1f1eb;
+      border-bottom: 1px solid #e2e1d9;
+    }
+
+    .dark .card-head { background: #303030; border-color: #414141; }
+
+    .status-line {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 4px;
+      color: #8a6220;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .card-head h3 {
+      margin: 0;
+      color: inherit;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    .card-body { padding: 16px 18px 18px; }
+    .card-summary { margin: 0 0 14px; font-size: 13px; }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 90px minmax(0, 1fr);
+      gap: 8px 12px;
+      margin-bottom: 15px;
+      font-size: 12px;
+    }
+
+    .info-grid span:nth-child(odd) { color: #858b86; }
+    .dark .info-grid span:nth-child(odd) { color: #a9afab; }
+
+    .comment-line {
+      display: flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 0 11px;
+      color: #8b918c;
+      background: #f8f8f4;
+      border: 1px solid #d7d7cf;
+      border-radius: 5px;
+      font-size: 12px;
+    }
+
+    .dark .comment-line { color: #a5aaa6; background: #2e2e2e; border-color: #484848; }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 13px;
+    }
+
+    .button {
+      min-height: 38px;
+      display: grid;
+      place-items: center;
+      color: #80362f;
+      background: #f5e7e4;
+      border: 1px solid #dfbdb7;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .button.primary {
+      color: white;
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .card-foot {
+      margin-top: 12px;
+      color: #8a908b;
+      font-size: 10px;
+      text-align: center;
+    }
+
+    .approved .card-head { background: #e7f1e9; border-color: #c9dfcf; }
+    .approved .status-line { color: #2e6847; }
+
+    .dark.approved .card-head { background: #26352b; border-color: #3c5143; }
+    .dark.approved .status-line { color: #82c497; }
+
+    .decision-block {
+      padding: 11px 12px;
+      background: #f4f5f0;
+      border: 1px solid #e1e1d9;
+      border-radius: 5px;
+      font-size: 12px;
+    }
+
+    .dark .decision-block { background: #2e2e2e; border-color: #444; }
+
+    .option-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .option {
+      display: grid;
+      grid-template-columns: 30px minmax(0, 1fr);
+      gap: 10px;
+      padding: 12px;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    .option b {
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      color: white;
+      background: var(--accent);
+      border-radius: 50%;
+      font-size: 11px;
+    }
+
+    .option strong { display: block; margin-bottom: 3px; }
+    .option p { margin: 0; color: var(--muted); font-size: 12px; }
+
+    .footer-note {
+      padding: 18px 48px;
+      color: var(--muted);
+      background: #f3f2ec;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; width: min(900px, calc(100% - 24px)); }
+      .toc { position: static; display: flex; flex-wrap: wrap; gap: 5px 14px; }
+      .toc strong { width: 100%; }
+      .toc a { padding: 2px 0; }
+      .preview-area { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 650px) {
+      header, section { padding: 26px 20px; }
+      .footer-note { padding: 16px 20px; }
+      .grid-2 { grid-template-columns: 1fr; }
+      header h1 { font-size: 26px; }
+      section h2 { font-size: 19px; }
+      table { display: block; overflow-x: auto; }
+    }
+
+    @media print {
+      body { background: white; }
+      .layout { display: block; width: 100%; margin: 0; }
+      .toc { display: none; }
+      main { border: 0; box-shadow: none; }
+      header, section, .footer-note { padding-left: 20px; padding-right: 20px; }
+      .preview-area { grid-template-columns: 1fr 1fr; }
+      section { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav class="toc" aria-label="文档目录">
+      <strong>目录</strong>
+      <a href="#background">背景</a>
+      <a href="#goals">目标</a>
+      <a href="#problems">当前问题</a>
+      <a href="#recommendation">推荐方案</a>
+      <a href="#terminal">终态卡片</a>
+      <a href="#visual">视觉规范</a>
+      <a href="#interaction">交互规则</a>
+      <a href="#acceptance">验收标准</a>
+      <a href="#confirm">待确认项</a>
+    </nav>
+
+    <main>
+      <header>
+        <span class="eyebrow">Product Requirements Document</span>
+        <h1>飞书审批卡片改版 PRD</h1>
+        <p>
+          针对当前卡片标题栏过重、原始 ID 外露、备注框过高、按钮视觉压力过大和深色模式适配不佳的问题，
+          定义一版更紧凑、清晰、适合手机审批的交互卡片。
+        </p>
+        <div class="doc-meta">
+          <span class="tag">版本 0.1</span>
+          <span class="tag">已确认 · 已实现</span>
+          <span class="tag">更新日期 2026-11-20</span>
+          <span class="tag">暂不修改代码</span>
+        </div>
+      </header>
+
+      <section id="background">
+        <h2>1. 背景</h2>
+        <p>
+          当前飞书审批卡片已经完成发卡、备注、通过、拒绝、长连接回调和终态更新。业务流程可用，
+          但实际卡片在飞书深色模式和桌面宽屏下视觉比例失衡。
+        </p>
+        <div class="notice">
+          本次改版只调整飞书 JSON 2.0 审批卡片，不修改 Temporal Workflow、Signal、幂等和审批 API。
+        </div>
+      </section>
+
+      <section id="goals">
+        <h2>2. 改版目标</h2>
+        <ul>
+          <li>移动端优先，桌面端保持紧凑。</li>
+          <li>默认使用低干扰配色，只在状态和主操作上使用强调色。</li>
+          <li>完整 Workflow ID 和 Run ID 不再进入标题或主摘要区域。</li>
+          <li>备注输入高度合理，操作按钮并排展示。</li>
+          <li>通过、拒绝、超时和取消具备清晰的状态差异。</li>
+          <li>终态卡片完整展示决定、操作人、渠道、时间和备注。</li>
+        </ul>
+
+        <h3>非目标</h3>
+        <ul>
+          <li>不增加多级审批、会签或审批链。</li>
+          <li>不增加附件、图片、文件或富文本编辑器。</li>
+          <li>不重做控制台 WebUI。</li>
+          <li>不改变当前飞书长连接架构。</li>
+        </ul>
+      </section>
+
+      <section id="problems">
+        <h2>3. 当前问题</h2>
+        <div class="grid-2">
+          <div class="problem">
+            <strong>标题栏视觉过重</strong>
+            <p>大面积深蓝色 Header 在深色模式下显得突兀，降低正文可读性。</p>
+          </div>
+          <div class="problem">
+            <strong>原始 ID 占据主视觉</strong>
+            <p>完整 Workflow ID 和 Run ID 出现在标题下方，内容冗长且对审批人没有直接价值。</p>
+          </div>
+          <div class="problem">
+            <strong>备注框高度失控</strong>
+            <p>多行输入框在桌面端占据大半卡片高度，挤压摘要和操作区域。</p>
+          </div>
+          <div class="problem">
+            <strong>危险操作过于醒目</strong>
+            <p>拒绝按钮大面积高饱和红色，与通过按钮形成同等视觉压力。</p>
+          </div>
+          <div class="problem">
+            <strong>上下文不足</strong>
+            <p>缺少截止时间、状态提示和终态处理信息。</p>
+          </div>
+          <div class="problem">
+            <strong>宽屏比例失衡</strong>
+            <p>桌面卡片过宽，表单与按钮没有使用适合宽屏的分组布局。</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="recommendation">
+        <h2>4. 推荐方案</h2>
+        <p>
+          推荐使用中性灰 Header、单行备注输入、双列等宽按钮和底部弱提示。
+          Workflow ID 仅在卡片底部显示短码。
+        </p>
+
+        <h3>4.1 待审批卡片预览</h3>
+        <div class="preview-area">
+          <article class="feishu-card">
+            <div class="card-head">
+              <div class="status-line"><span class="status-dot"></span>待审批</div>
+              <h3>飞书卡片新版验证</h3>
+            </div>
+            <div class="card-body">
+              <p class="card-summary">备注框缩短，通过和拒绝按钮改为并排布局。</p>
+              <div class="info-grid">
+                <span>审批类型</span><strong>发布确认</strong>
+                <span>截止时间</span><strong>11/21 17:25</strong>
+              </div>
+              <div class="comment-line">可选填写审批备注</div>
+              <div class="button-row">
+                <div class="button">拒绝</div>
+                <div class="button primary">通过</div>
+              </div>
+              <div class="card-foot">处理后将同步更新此卡片</div>
+            </div>
+          </article>
+
+          <article class="feishu-card dark">
+            <div class="card-head">
+              <div class="status-line"><span class="status-dot"></span>待审批</div>
+              <h3>飞书卡片新版验证</h3>
+            </div>
+            <div class="card-body">
+              <p class="card-summary">深色模式使用中性 Header，不使用大面积高饱和背景。</p>
+              <div class="info-grid">
+                <span>审批类型</span><strong>发布确认</strong>
+                <span>截止时间</span><strong>11/21 17:25</strong>
+              </div>
+              <div class="comment-line">可选填写审批备注</div>
+              <div class="button-row">
+                <div class="button">拒绝</div>
+                <div class="button primary">通过</div>
+              </div>
+              <div class="card-foot">处理后将同步更新此卡片</div>
+            </div>
+          </article>
+        </div>
+
+        <h3>4.2 布局规则</h3>
+        <table>
+          <thead>
+            <tr><th>区域</th><th>规则</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Header</td><td>只显示状态和业务标题，中性灰背景。完整 ID 不进入 Header。</td></tr>
+            <tr><td>摘要</td><td>支持 Markdown，推荐不超过 500 字。</td></tr>
+            <tr><td>字段</td><td>使用两列信息表，移动端自动变单列。</td></tr>
+            <tr><td>备注</td><td>单行文本，最大 200 字，占位文案“可选填写审批备注”。</td></tr>
+            <tr><td>按钮</td><td>左拒绝、右通过，等宽并排。</td></tr>
+            <tr><td>调试信息</td><td>仅底部显示 Workflow 短 ID 和 Run ID 前 8 位。</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="terminal">
+        <h2>5. 终态卡片</h2>
+
+        <h3>5.1 已通过</h3>
+        <div class="preview-area">
+          <article class="feishu-card approved">
+            <div class="card-head">
+              <div class="status-line"><span class="status-dot"></span>已通过</div>
+              <h3>飞书卡片新版验证</h3>
+            </div>
+            <div class="card-body">
+              <p class="card-summary">审批处理完成，流程已继续执行。</p>
+              <div class="decision-block">
+                <strong>处理结果</strong><br>
+                操作人：ou_xxx<br>
+                渠道：飞书<br>
+                时间：11/20 17:32<br>
+                备注：「成功了」
+              </div>
+            </div>
+          </article>
+
+          <article class="feishu-card dark approved">
+            <div class="card-head">
+              <div class="status-line"><span class="status-dot"></span>已通过</div>
+              <h3>飞书卡片新版验证</h3>
+            </div>
+            <div class="card-body">
+              <p class="card-summary">终态卡片移除输入框和按钮，避免重复操作。</p>
+              <div class="decision-block">
+                <strong>处理结果</strong><br>
+                操作人：ou_xxx<br>
+                渠道：飞书<br>
+                时间：11/20 17:32<br>
+                备注：「成功了」
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <h3>5.2 已拒绝、超时和取消</h3>
+        <ul>
+          <li>已拒绝使用低饱和红色状态。</li>
+          <li>超时和取消使用中性灰状态。</li>
+          <li>不展示备注输入和操作按钮。</li>
+          <li>保留摘要、业务字段、处理时间、渠道和备注。</li>
+        </ul>
+      </section>
+
+      <section id="visual">
+        <h2>6. 视觉规范</h2>
+        <table>
+          <thead>
+            <tr><th>元素</th><th>规范</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Header</td><td>中性灰或无色，不使用大面积高饱和背景。</td></tr>
+            <tr><td>主标题</td><td>18px 左右，单行优先，最多两行。</td></tr>
+            <tr><td>状态</td><td>小面积文本或标签，不抢占标题。</td></tr>
+            <tr><td>正文</td><td>13px 左右，行高 1.6。</td></tr>
+            <tr><td>次要信息</td><td>11px 左右，使用灰色。</td></tr>
+            <tr><td>备注输入</td><td>单行，不设置大面积最小高度。</td></tr>
+            <tr><td>主按钮</td><td>使用飞书主题主操作色。</td></tr>
+            <tr><td>危险按钮</td><td>低饱和红色背景或红色描边。</td></tr>
+            <tr><td>圆角</td><td>使用飞书组件默认值，不额外覆盖。</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="interaction">
+        <h2>7. 交互规则</h2>
+        <ol>
+          <li>审批人点击“通过”或“拒绝”。</li>
+          <li>备注和决定在同一次 <code>card.action.trigger</code> 回调中提交。</li>
+          <li>回调在 3 秒内返回 Toast。</li>
+          <li>成功时返回“审批已提交”。</li>
+          <li>Workflow 完成终态后，使用 <code>message_id</code> 更新卡片。</li>
+        </ol>
+
+        <h3>异常提示</h3>
+        <table>
+          <thead>
+            <tr><th>场景</th><th>提示</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>非白名单用户</td><td>无审批权限</td></tr>
+            <tr><td>参数缺失</td><td>审批参数不完整</td></tr>
+            <tr><td>重复操作</td><td>审批已处理</td></tr>
+            <tr><td>Signal 提交失败</td><td>审批提交失败</td></tr>
+          </tbody>
+        </table>
+
+        <h3>按钮回调值</h3>
+        <pre>{
+  "workflow_id": "approvaldemo:key",
+  "run_id": "run-1",
+  "approval_id": "approval",
+  "decision": "approved"
+}</pre>
+      </section>
+
+      <section id="acceptance">
+        <h2>8. 验收标准</h2>
+        <h3>P0</h3>
+        <ul>
+          <li>待审批卡片不再使用大面积高饱和 Header。</li>
+          <li>完整 Workflow ID 和 Run ID 不出现在 Header 或标题中。</li>
+          <li>备注输入为单行紧凑控件，不再出现大块空白。</li>
+          <li>通过和拒绝按钮等宽并排。</li>
+          <li>移动端和桌面端均无明显文字溢出。</li>
+          <li>飞书深色模式下正文、输入框和按钮清晰可读。</li>
+          <li>点击通过或拒绝后 Workflow 能收到正确 Signal。</li>
+          <li>终态卡片显示决定、操作人、渠道、时间和备注。</li>
+        </ul>
+
+        <h3>P1</h3>
+        <ul>
+          <li>底部显示 Workflow 短 ID 和 Run ID 前 8 位。</li>
+          <li>截止时间按本地时区显示。</li>
+          <li>通过、拒绝、超时和取消具备不同状态视觉。</li>
+          <li>卡片更新失败不影响 Workflow 最终结果。</li>
+        </ul>
+      </section>
+
+      <section id="confirm">
+        <h2>9. 待确认项</h2>
+        <div class="option-list">
+          <div class="option">
+            <b>1</b>
+            <div><strong>标题栏</strong><p>推荐 A：中性灰。可选 B：无 Header；C：保留蓝色但降低饱和度。</p></div>
+          </div>
+          <div class="option">
+            <b>2</b>
+            <div><strong>备注控件</strong><p>推荐 A：单行文本。可选 B：固定两行；C：保留多行但限制显示高度。</p></div>
+          </div>
+          <div class="option">
+            <b>3</b>
+            <div><strong>按钮顺序</strong><p>推荐 A：左拒绝、右通过。可选 B：左通过、右拒绝。</p></div>
+          </div>
+          <div class="option">
+            <b>4</b>
+            <div><strong>Workflow ID</strong><p>推荐 A：底部显示短 ID。可选 B：显示完整 ID；C：完全不显示。</p></div>
+          </div>
+          <div class="option">
+            <b>5</b>
+            <div><strong>控制台入口</strong><p>手机无法访问本机 127.0.0.1，推荐仅显示提示文本，不生成可点击链接。</p></div>
+          </div>
+        </div>
+        <div class="notice">
+          当前状态：已按推荐方案实现，并通过飞书真机审批验证。
+        </div>
+      </section>
+
+      <div class="footer-note">
+        飞书审批卡片改版 PRD · 2026-11-20 · 已确认并实现
+      </div>
+    </main>
+  </div>
+</body>
+</html>

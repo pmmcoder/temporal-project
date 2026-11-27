@@ -1,0 +1,4 @@
+services:
+  temporal:
+    ports:
+      - "127.0.0.1:7233:7233"

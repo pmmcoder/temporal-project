@@ -1,0 +1,9 @@
+.git
+.env
+backups
+web/node_modules
+web/*.tsbuildinfo
+web/vite.config.js
+web/vite.config.d.ts
+platform/webui/dist
+docs
